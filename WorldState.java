@@ -14,6 +14,9 @@ public class WorldState {
 				state[i][j] = new Square();
 				state[i][j].x = i;
 				state[i][j].y = j;
+				if(i == 0 || i == 5 || j == 0 || j == 5) {
+//					state[i][j].numVisit = 9;
+				}
 			}
 		}
 		
@@ -150,8 +153,7 @@ public class WorldState {
 		}
 		
 		// increase the number of visit in this current square
-		if(agentLoc.numVisit < 9)
-			agentLoc.numVisit += 1;
+		agentLoc.numVisit += 1;
 		// update the percepts in current square
 		if(stench == true) {
 			agentLoc.hasStench = true;
@@ -382,38 +384,37 @@ public class WorldState {
 		Square rightSquare = squares.get("right");
 		
 		
-		score = 100*-agentLoc.numVisit;
-		
-		if(frontSquare.isWumpus > 0 || frontSquare.isPit > 0 || frontSquare.isWall) {
-			score -= 100;
-		}
-		if(leftSquare.isWumpus > 0 || leftSquare.isPit > 0 || leftSquare.isWall) {
-			score -= 100;
-		}
-		if(rightSquare.isWumpus > 0 || rightSquare.isPit > 0 || rightSquare.isWall) {
-			score -= 100;
-		}
+		score = 10 - agentLoc.numVisit;
+//		if(frontSquare.isWumpus > 0 || frontSquare.isPit > 0 || frontSquare.isWall) {
+//			score -= 1;
+//		}
+//		if(leftSquare.isWumpus > 0 || leftSquare.isPit > 0 || leftSquare.isWall) {
+//			score -= 1;
+//		}
+//		if(rightSquare.isWumpus > 0 || rightSquare.isPit > 0 || rightSquare.isWall) {
+//			score -= 1;
+//		}
 		
 		if(lastAction == Action.GRAB) {
 			if(agentLoc.hasGlitter) {
-				score += goldReward;
+				score = 10;
 			}
 			else {
-				score += -goldReward;
+				score = -1;
 			}
 		}
 		
-		score = agentLoc.isWumpus > 0 ? deadPenalty : score;
-		score = agentLoc.isPit > 0 ? deadPenalty : score;
+		score = agentLoc.isWumpus > 0 ? -1 : score;
+		score = agentLoc.isPit > 0 ? -1 : score;
 		
-		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
-			&& this.alreadyShot == false) {
-			score += deadPenalty*frontSquare.isWumpus;
-		}
-		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
-				&& lastAction == Action.SHOOT) {
-			score += -deadPenalty*frontSquare.isWumpus;
-		}
+//		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
+//			&& this.alreadyShot == false) {
+//			score += deadPenalty*frontSquare.isWumpus;
+//		}
+//		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
+//				&& lastAction == Action.SHOOT) {
+//			score += -deadPenalty*frontSquare.isWumpus;
+//		}
 //		score += deadPenalty*agentLoc.isWumpus;
 //		score += deadPenalty*agentLoc.isPit;
 //		score += goldReward/(count+1);
@@ -421,9 +422,9 @@ public class WorldState {
 		if(lastAction != Action.NO_OP) {
 			score += -1;
 		}	
-		else if(lastAction == Action.SHOOT) {
-			score += -10;
-		}
+//		else if(lastAction == Action.SHOOT) {
+//			score += -10;
+//		}
 		
 		return score;
 	}

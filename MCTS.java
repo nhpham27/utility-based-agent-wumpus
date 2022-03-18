@@ -7,7 +7,7 @@ public class MCTS {
 	Node root;
 	int numIteration;
 	int NUM_ACTION = 6;
-	private double EXPLORATION_CONSTANT = 2000;
+	private double EXPLORATION_CONSTANT = 20;
 	private int simulationTime;
 	boolean treeDebug = false;
 	HashMap<Integer, String> actionNames;
@@ -121,6 +121,7 @@ public class MCTS {
 			child.action = actions.get(i);
 			// add new node to children list
 			node.children[i] = child;
+//			child.value = st.evaluationFunction(child.action);
 			if(st.getAgentLocation().isWumpus > 0 
 					|| st.getAgentLocation().isPit > 0 ) {
 				child.isTerminal = true;
@@ -160,7 +161,7 @@ public class MCTS {
 					maxVal = value;
 				}
 			}
-			totalValue = maxVal;
+			totalValue += maxVal;
 
 		return totalValue;
 	}

@@ -40,7 +40,7 @@ class AgentFunction {
 	private int lastAction = -1;
 	private int step;
 	static boolean debugMode = false;
-	static int trial = 5000;
+	static int trial = 1000;
 	public AgentFunction()
 	{
 		// for illustration purposes; you may delete all code
@@ -89,7 +89,7 @@ class AgentFunction {
 			this.state.printState();
 		// return action to be performed
 		//this.lastAction = actionTable[rand.nextInt(4)];
-		MCTS mcts = new MCTS(this.state, 100, this.step);
+		MCTS mcts = new MCTS(this.state, 1000, this.step);
 		this.step--;
 		mcts.buildSearchTree();
 		
