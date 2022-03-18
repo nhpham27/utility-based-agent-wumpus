@@ -15,7 +15,7 @@ public class WorldState {
 				state[i][j].x = i;
 				state[i][j].y = j;
 				if(i == 0 || i == 5 || j == 0 || j == 5) {
-//					state[i][j].numVisit = 9;
+					//state[i][j].isWall = true;
 				}
 			}
 		}
@@ -356,7 +356,8 @@ public class WorldState {
 		return (hasGold && hasPath);
 	}
 	
-	// Evaluation function
+	// Evaluation function: evaluate the value of the current
+	// state that the agent is currently in
 	public double evaluationFunction(int lastAction) {
 		// less square contains gold reward
 		double goldReward = 1000;
@@ -366,35 +367,33 @@ public class WorldState {
 		// count number of visited squares
 		double score = 0;
 		double count = 0;
+		double centerX = 0, centerY = 0;
 		for(int i = 1;i < this.worldStateSize - 1; i++) {
 			for(int j = 1;j < this.worldStateSize - 1; j++) {
 				Square q = state[i][j];
 				if(q.numVisit == 0 && q.isWumpus < 0.1 && q.isPit < 0.1 && !q.isWall) {
 					count += 1;
+					centerX += q.x;
+					centerY += q.y;
 				}
 			}
 		}
 		
+		
 		// enter a square that has Wumpus or Pit or Wall
 		Square agentLoc = this.getAgentLocation();
+		//centerX = centerX/count;
+		//centerY = centerY/count;
+		//double distance = this.distance(agentLoc.x, agentLoc.y , centerX, centerY);
 		// agent get penalty if facing the wall
 		HashMap<String, Square> squares = this.getAroundSquares(this.getAgentLocation());
 		Square frontSquare = squares.get("front");
 		Square leftSquare = squares.get("left");
 		Square rightSquare = squares.get("right");
 		
-		
 		score = 10 - agentLoc.numVisit;
-//		if(frontSquare.isWumpus > 0 || frontSquare.isPit > 0 || frontSquare.isWall) {
-//			score -= 1;
-//		}
-//		if(leftSquare.isWumpus > 0 || leftSquare.isPit > 0 || leftSquare.isWall) {
-//			score -= 1;
-//		}
-//		if(rightSquare.isWumpus > 0 || rightSquare.isPit > 0 || rightSquare.isWall) {
-//			score -= 1;
-//		}
-		
+		//score += -10*distance;
+
 		if(lastAction == Action.GRAB) {
 			if(agentLoc.hasGlitter) {
 				score = 10;
@@ -404,28 +403,21 @@ public class WorldState {
 			}
 		}
 		
-		score = agentLoc.isWumpus > 0 ? -1 : score;
-		score = agentLoc.isPit > 0 ? -1 : score;
+		score = agentLoc.isWumpus > 0 ? -10 : score;
+		score = agentLoc.isPit > 0 ? -10 : score;
 		
-//		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
-//			&& this.alreadyShot == false) {
-//			score += deadPenalty*frontSquare.isWumpus;
-//		}
-//		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
-//				&& lastAction == Action.SHOOT) {
-//			score += -deadPenalty*frontSquare.isWumpus;
-//		}
-//		score += deadPenalty*agentLoc.isWumpus;
-//		score += deadPenalty*agentLoc.isPit;
-//		score += goldReward/(count+1);
+		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
+			&& this.alreadyShot == false) {
+			score = 10;
+		}
+		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
+				&& lastAction == Action.SHOOT) {
+			score = -10;
+		}
 		
 		if(lastAction != Action.NO_OP) {
 			score += -1;
 		}	
-//		else if(lastAction == Action.SHOOT) {
-//			score += -10;
-//		}
-		
 		return score;
 	}
 	
@@ -440,5 +432,9 @@ public class WorldState {
 		
 		WorldState copyWorldState = new WorldState(copyState, this.alreadyShot);
 		return copyWorldState;
+	}
+	
+	private double distance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 	}
 }

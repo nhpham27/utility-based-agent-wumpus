@@ -26,6 +26,8 @@ public class MCTS {
 		actionNames.put(Action.NO_OP, "No-op");
 	}
 	
+	// get the best of the agent by selecting the child node
+	// that have the best value
 	public int getBestAction() {
 		double maxVal = -99999999;
 		int action = 0;
@@ -49,18 +51,24 @@ public class MCTS {
 		return action;
 	}
 	
+	// Build the Monte Carlo tree search using the number of iteration
 	public void buildSearchTree() {
 		if(this.treeDebug)
 			System.out.println("****Start building search tree****");
+		// Add child nodes for the root node
 		this.expansion(root);
 		for(int i = 0; i < this.numIteration; i++) {
 			if(this.treeDebug)
 				System.out.println("Iteration: " + i);
+			// select the next node to visit
 			Node temp = this.selection();
 			if(temp.numVisit == 0) {
+				// if the node has not been visited, do simulation and back propagation
 				this.backpropagation(temp, this.simulation(temp));
 			}
 			else {
+				// if the node has been visited, expand the node and
+				// do simulation, back propagation on the first child
 				if(temp.isTerminal == false) {
 					this.expansion(temp);
 					Node firstChild = temp.children[0];
@@ -70,16 +78,20 @@ public class MCTS {
 		}
 	}
 	
+	// The UCB1 formula to select the next node to explore
 	private double UCB1(double exploitation, int parentVisit, int childVisit) {
 		return exploitation + this.EXPLORATION_CONSTANT*Math.sqrt(Math.log(parentVisit)/(childVisit+1));
 	}
 	
+	// Select the next node to explore
 	private Node selection() {
 		if(this.treeDebug)
 			System.out.println("Selection");
 		Node temp = this.root;
 		double maxVal = -99999999;
 		int maxChild = 0;
+		// traverse the tree, select the child nodes that have
+		// highest value from UCB1 formula
 		while(temp.children != null) {
 			for(int i = 0; i < temp.children.length; i++) {
 				Node currChild = temp.children[i];
@@ -98,15 +110,21 @@ public class MCTS {
 		return temp;
 	}
 	
+	// Expand the node by adding child nodes for each possible action
+	// of the agent
 	private void expansion(Node node) {
 		if(this.treeDebug)
 			System.out.println("Expansion");
 		Integer[] temp = {Action.GO_FORWARD, Action.TURN_LEFT, 
 				Action.TURN_RIGHT, Action.NO_OP, 
 				Action.GRAB, Action.SHOOT};
+		// shuffle the actions in the list so that
+		// the first action from the list will be 
+		// selected randomly
 		List<Integer> actions = Arrays.asList(temp);
 		Collections.shuffle(actions);
 		node.children = new Node[this.NUM_ACTION];
+		// Add a child node for each action
 		for(int i = 0; i < actions.size(); i++) {
 			// make a copy of current node's world state
 			WorldState st = node.state.copyWorldState();
@@ -129,10 +147,11 @@ public class MCTS {
 		}
 	}
 	
+	// Simulate the node by doing all possible actions and pick
+	// the value of the best action as the value of the node
 	private double simulation(Node node) {
 		if(this.treeDebug)
 			System.out.println("Simulation");
-		WorldState tempWorld = node.state.copyWorldState();
 		Integer[] actions = {Action.GO_FORWARD, Action.TURN_LEFT, 
 							Action.TURN_RIGHT, Action.NO_OP, 
 							Action.GRAB, Action.SHOOT};
@@ -155,6 +174,7 @@ public class MCTS {
 
 			double maxVal = -99999;
 			for(int j = 0; j < actions.length; j++) {
+				WorldState tempWorld = node.state.copyWorldState();
 				tempWorld.updateAgentPosition(actions[j]);
 				double value = tempWorld.evaluationFunction(actions[j]);
 				if(value > maxVal) {
@@ -166,6 +186,8 @@ public class MCTS {
 		return totalValue;
 	}
 	
+	// evaluate the node to see if the state of the agent is dead
+	//, this is for setting the terminal node
 	private int evaluate(WorldState state, int action) {
 		Square agentLoc = state.getAgentLocation();
 		HashMap<String,Square> squares = state.getAroundSquares(agentLoc);
@@ -173,19 +195,12 @@ public class MCTS {
 		if(agentLoc.isWumpus > 0 || agentLoc.isPit > 0) {
 			return -1000;
 		}
-		else if(agentLoc.hasGlitter && action == Action.GRAB) {
-			return 1000;
-		}
-		else if(action == Action.SHOOT 
-				&& squares.get("front").isWumpus > 0
-				&& state.checkArrow() == true) {
-			return 2;
-		}
-		else {
-			return 10 - agentLoc.numVisit;
-		}
+
+		return 0;
 	}
 	
+	// Doing back propagation to accumulate the value along
+	// the way back to the root node
 	private void backpropagation(Node node, double value) {
 		if(this.treeDebug)
 			System.out.println("Back Propagation");
