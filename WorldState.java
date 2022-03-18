@@ -380,48 +380,20 @@ public class WorldState {
 		Square frontSquare = squares.get("front");
 		Square leftSquare = squares.get("left");
 		Square rightSquare = squares.get("right");
-		if(lastAction != Action.NO_OP) {
-			score += -1;
-		}	
-		else if(lastAction == Action.SHOOT) {
-			score += -10;
+		
+		
+		score = 100*-agentLoc.numVisit;
+		
+		if(frontSquare.isWumpus > 0 || frontSquare.isPit > 0 || frontSquare.isWall) {
+			score -= 100;
+		}
+		if(leftSquare.isWumpus > 0 || leftSquare.isPit > 0 || leftSquare.isWall) {
+			score -= 100;
+		}
+		if(rightSquare.isWumpus > 0 || rightSquare.isPit > 0 || rightSquare.isWall) {
+			score -= 100;
 		}
 		
-//		if(lastAction == Action.GRAB) {
-//			if(agentLoc.hasGlitter) {
-//				score += goldReward;
-//			}
-//			else {
-//				score += -goldReward;
-//			}
-//		}
-//		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
-//				&& this.alreadyShot == false) {
-//			score += deadPenalty*frontSquare.isWumpus;
-//		}
-//		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
-//				&& lastAction == Action.SHOOT) {
-//			score += -deadPenalty*frontSquare.isWumpus;
-//		}
-//		score += deadPenalty*agentLoc.isWumpus;
-//		score += deadPenalty*agentLoc.isPit;
-//		score += goldReward/(count+1);
-		
-//		if(lastAction == Action.GO_FORWARD) {
-//			score += deadPenalty*frontSquare.isWumpus;
-//			score += deadPenalty*frontSquare.isPit;
-//		}
-//		else if(agentLoc.hasGlitter && lastAction == Action.GRAB) {
-//			score += goldReward;
-//		}
-//		else {
-//			if(agentLoc.numVisit == 1)
-//				exploreScore = goldReward/count;
-//			score += 4.89 + exploreScore/32;
-//		}
-		
-		
-		score += -agentLoc.numVisit;
 		if(lastAction == Action.GRAB) {
 			if(agentLoc.hasGlitter) {
 				score += goldReward;
@@ -430,6 +402,10 @@ public class WorldState {
 				score += -goldReward;
 			}
 		}
+		
+		score = agentLoc.isWumpus > 0 ? deadPenalty : score;
+		score = agentLoc.isPit > 0 ? deadPenalty : score;
+		
 		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
 			&& this.alreadyShot == false) {
 			score += deadPenalty*frontSquare.isWumpus;
@@ -438,23 +414,16 @@ public class WorldState {
 				&& lastAction == Action.SHOOT) {
 			score += -deadPenalty*frontSquare.isWumpus;
 		}
-		score += deadPenalty*agentLoc.isWumpus;
-		score += deadPenalty*agentLoc.isPit;
-		score += goldReward/(count+1);
-//		if(agentLoc.isWumpus > 0 || agentLoc.isPit > 0) {
-//			score += deadPenalty*agentLoc.isWumpus + deadPenalty*agentLoc.isPit;
-//		}
-//		else if(agentLoc.hasBreeze || agentLoc.hasStench) {
-//			score += 0.05*deadPenalty;  
-//		}
-//		else {
-//			if(agentLoc.numVisit == 1)
-//				exploreScore = goldReward/count;
-//			score += 489 + exploreScore/32;
-//		}
-
+//		score += deadPenalty*agentLoc.isWumpus;
+//		score += deadPenalty*agentLoc.isPit;
+//		score += goldReward/(count+1);
 		
-		
+		if(lastAction != Action.NO_OP) {
+			score += -1;
+		}	
+		else if(lastAction == Action.SHOOT) {
+			score += -10;
+		}
 		
 		return score;
 	}

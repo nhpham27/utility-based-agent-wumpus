@@ -7,15 +7,23 @@ public class MCTS {
 	Node root;
 	int numIteration;
 	int NUM_ACTION = 6;
-	private double EXPLORATION_CONSTANT = 20000;
+	private double EXPLORATION_CONSTANT = 2000;
 	private int simulationTime;
-	
 	boolean treeDebug = false;
+	HashMap<Integer, String> actionNames;
 	
 	MCTS(WorldState state, int numIteration, int simulTime){
 		this.root = new Node(state);
 		this.numIteration = numIteration;
 		this.simulationTime = simulTime;
+		
+		this.actionNames = new HashMap<>();
+		actionNames.put(Action.GO_FORWARD, "Forward");
+		actionNames.put(Action.TURN_LEFT, "Left");
+		actionNames.put(Action.TURN_RIGHT, "Right");
+		actionNames.put(Action.GRAB, "Grab");
+		actionNames.put(Action.SHOOT, "Shoot");
+		actionNames.put(Action.NO_OP, "No-op");
 	}
 	
 	public int getBestAction() {
@@ -29,7 +37,7 @@ public class MCTS {
 				action = currChild.action;
 			}
 			if(AgentFunction.debugMode) {
-				System.out.print("action: " + currChild.action);
+				System.out.print("action: " + this.actionNames.get(currChild.action));
 				System.out.print(", value: " + currChild.value);
 				if(currChild.isTerminal) {
 					System.out.print("  This is terminal node");
@@ -59,15 +67,6 @@ public class MCTS {
 					this.backpropagation(firstChild, this.simulation(firstChild));
 				}
 			}
-//			System.out.println("Iteration: " + i);
-//			for(int j = 0; j < root.children.length; j++) {
-//				Node currChild = root.children[j];
-//				if(AgentFunction.debugMode) {
-//					System.out.print("action: " + currChild.action);
-//					System.out.println(", value: " + currChild.value);
-//				}
-//			}
-//			System.out.println("");
 		}
 	}
 	
@@ -133,27 +132,36 @@ public class MCTS {
 		if(this.treeDebug)
 			System.out.println("Simulation");
 		WorldState tempWorld = node.state.copyWorldState();
-		Integer[] temp = {Action.GO_FORWARD, Action.TURN_LEFT, 
+		Integer[] actions = {Action.GO_FORWARD, Action.TURN_LEFT, 
 							Action.TURN_RIGHT, Action.NO_OP, 
 							Action.GRAB, Action.SHOOT};
-		tempWorld.updateAgentPosition(node.action);
 		double totalValue = 0;
 
 		boolean agentDead = false;
-		for(int i = 0; i < simulationTime; i++) {
-			// get a random action
-			List<Integer> actions = Arrays.asList(temp);
-			Collections.shuffle(actions);
-			
-			// make a move based on the action
-			tempWorld.updateAgentPosition(actions.get(0));
-			
-			// add the value of the state to the total
-			//double value = this.evaluate(tempWorld, actions.get(0));
-			double value = tempWorld.evaluationFunction(actions.get(0));
-			totalValue += value;
-		}
-		
+//		for(int i = 0; i < simulationTime; i++) {
+//			// get a random action
+//			List<Integer> actions = Arrays.asList(temp);
+//			Collections.shuffle(actions);
+//			
+//			// make a move based on the action
+//			tempWorld.updateAgentPosition(actions.get(0));
+//			
+//			// add the value of the state to the total
+//			//double value = this.evaluate(tempWorld, actions.get(0));
+//			double value = tempWorld.evaluationFunction(actions.get(0));
+//			totalValue += value;
+//		}
+
+			double maxVal = -99999;
+			for(int j = 0; j < actions.length; j++) {
+				tempWorld.updateAgentPosition(actions[j]);
+				double value = tempWorld.evaluationFunction(actions[j]);
+				if(value > maxVal) {
+					maxVal = value;
+				}
+			}
+			totalValue = maxVal;
+
 		return totalValue;
 	}
 	

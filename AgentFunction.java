@@ -40,7 +40,7 @@ class AgentFunction {
 	private int lastAction = -1;
 	private int step;
 	static boolean debugMode = false;
-	static int trial = 10000;
+	static int trial = 5000;
 	public AgentFunction()
 	{
 		// for illustration purposes; you may delete all code
@@ -81,11 +81,6 @@ class AgentFunction {
 		stench = tp.getStench();
 		scream = tp.getScream();
 		
-		//Grab the gold whenever the agent senses glitter
-//		if(glitter == true) {
-//			return Action.GRAB;
-//		}
-		
 		// update the state based on current percept
 		// and the most recent action
 		boolean[] percepts = {bump, glitter, breeze, stench, scream};
@@ -94,7 +89,8 @@ class AgentFunction {
 			this.state.printState();
 		// return action to be performed
 		//this.lastAction = actionTable[rand.nextInt(4)];
-		MCTS mcts = new MCTS(this.state, 100, 50);
+		MCTS mcts = new MCTS(this.state, 100, this.step);
+		this.step--;
 		mcts.buildSearchTree();
 		
 		lastAction = mcts.getBestAction();
