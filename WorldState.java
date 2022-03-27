@@ -365,7 +365,7 @@ public class WorldState {
 		double deadPenalty = -1000;
 		double exploreScore = 0;
 		// count number of visited squares
-		double score = 0;
+		double score = 1000;
 		double count = 0;
 		double centerX = 0, centerY = 0;
 		for(int i = 1;i < this.worldStateSize - 1; i++) {
@@ -373,8 +373,6 @@ public class WorldState {
 				Square q = state[i][j];
 				if(q.numVisit == 0 && q.isWumpus < 0.1 && q.isPit < 0.1 && !q.isWall) {
 					count += 1;
-					centerX += q.x;
-					centerY += q.y;
 				}
 			}
 		}
@@ -391,33 +389,17 @@ public class WorldState {
 		Square leftSquare = squares.get("left");
 		Square rightSquare = squares.get("right");
 		
-		score = 10 - agentLoc.numVisit;
-		//score += -10*distance;
-
-		if(lastAction == Action.GRAB) {
-			if(agentLoc.hasGlitter) {
-				score = 10;
-			}
-			else {
-				score = -1;
-			}
+		if(agentLoc.isPit > 0 || agentLoc.isWumpus > 0)
+			score = -(agentLoc.isPit*deadPenalty + agentLoc.isWumpus*deadPenalty);
+		if((agentLoc.numVisit == 1 || frontSquare.numVisit == 0) && lastAction != Action.NO_OP)
+			score += goldReward/(count+1);
+		if(agentLoc.hasGlitter && lastAction == Action.GRAB)
+			score += goldReward;
+		if(lastAction == Action.SHOOT)
+			score -= 10;
+		else if(lastAction != Action.NO_OP) {
+			score -= 1;
 		}
-		
-		score = agentLoc.isWumpus > 0 ? -10 : score;
-		score = agentLoc.isPit > 0 ? -10 : score;
-		
-		if(frontSquare.isWumpus > 0 && lastAction == Action.SHOOT 
-			&& this.alreadyShot == false) {
-			score = 10;
-		}
-		else if((frontSquare.isWumpus < 0.1 || this.alreadyShot == false) 
-				&& lastAction == Action.SHOOT) {
-			score = -10;
-		}
-		
-		if(lastAction != Action.NO_OP) {
-			score += -1;
-		}	
 		return score;
 	}
 	

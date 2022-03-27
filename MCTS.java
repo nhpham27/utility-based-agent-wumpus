@@ -7,7 +7,7 @@ public class MCTS {
 	Node root;
 	int numIteration;
 	int NUM_ACTION = 6;
-	private double EXPLORATION_CONSTANT = 20;
+	private double EXPLORATION_CONSTANT = 20000;
 	private int simulationTime;
 	boolean treeDebug = false;
 	HashMap<Integer, String> actionNames;
@@ -34,7 +34,7 @@ public class MCTS {
 		for(int i = 0; i < root.children.length; i++) {
 			Node currChild = root.children[i];
 			// update max, find node to select
-			if(currChild.value > maxVal && !currChild.isTerminal) {
+			if(currChild.value > maxVal) {
 				maxVal = currChild.value;
 				action = currChild.action;
 			}
@@ -69,11 +69,9 @@ public class MCTS {
 			else {
 				// if the node has been visited, expand the node and
 				// do simulation, back propagation on the first child
-				if(temp.isTerminal == false) {
-					this.expansion(temp);
-					Node firstChild = temp.children[0];
-					this.backpropagation(firstChild, this.simulation(firstChild));
-				}
+				this.expansion(temp);
+				Node firstChild = temp.children[0];
+				this.backpropagation(firstChild, this.simulation(firstChild));
 			}
 		}
 	}
@@ -122,7 +120,7 @@ public class MCTS {
 		// the first action from the list will be 
 		// selected randomly
 		List<Integer> actions = Arrays.asList(temp);
-		Collections.shuffle(actions);
+		//Collections.shuffle(actions);
 		node.children = new Node[this.NUM_ACTION];
 		// Add a child node for each action
 		for(int i = 0; i < actions.size(); i++) {
@@ -139,11 +137,6 @@ public class MCTS {
 			child.action = actions.get(i);
 			// add new node to children list
 			node.children[i] = child;
-//			child.value = st.evaluationFunction(child.action);
-			if(st.getAgentLocation().isWumpus > 0 
-					|| st.getAgentLocation().isPit > 0 ) {
-				child.isTerminal = true;
-			}
 		}
 	}
 	
@@ -158,30 +151,8 @@ public class MCTS {
 		double totalValue = 0;
 
 		boolean agentDead = false;
-//		for(int i = 0; i < simulationTime; i++) {
-//			// get a random action
-//			List<Integer> actions = Arrays.asList(temp);
-//			Collections.shuffle(actions);
-//			
-//			// make a move based on the action
-//			tempWorld.updateAgentPosition(actions.get(0));
-//			
-//			// add the value of the state to the total
-//			//double value = this.evaluate(tempWorld, actions.get(0));
-//			double value = tempWorld.evaluationFunction(actions.get(0));
-//			totalValue += value;
-//		}
-
-			double maxVal = -99999;
-			for(int j = 0; j < actions.length; j++) {
-				WorldState tempWorld = node.state.copyWorldState();
-				tempWorld.updateAgentPosition(actions[j]);
-				double value = tempWorld.evaluationFunction(actions[j]);
-				if(value > maxVal) {
-					maxVal = value;
-				}
-			}
-			totalValue += maxVal;
+		double maxVal = -99999;
+		totalValue = node.state.evaluationFunction(node.action);
 
 		return totalValue;
 	}
