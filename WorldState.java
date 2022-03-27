@@ -372,7 +372,7 @@ public class WorldState {
 			for(int j = 1;j < this.worldStateSize - 1; j++) {
 				Square q = state[i][j];
 				if(q.numVisit == 0 && q.isWumpus < 0.1 && q.isPit < 0.1 && !q.isWall) {
-					count += 1;
+					count += q.numVisit;
 				}
 			}
 		}
@@ -391,10 +391,15 @@ public class WorldState {
 		
 		if(agentLoc.isPit > 0 || agentLoc.isWumpus > 0)
 			score = -(agentLoc.isPit*deadPenalty + agentLoc.isWumpus*deadPenalty);
-		if((agentLoc.numVisit == 1 || frontSquare.numVisit == 0) && lastAction != Action.NO_OP)
-			score += goldReward/(count+1);
-		if(agentLoc.hasGlitter && lastAction == Action.GRAB)
-			score += goldReward;
+//		if(agentLoc.numVisit == 1)
+//			score += goldReward/(count+1);
+		
+		score -= agentLoc.numVisit;
+		if(agentLoc.hasGlitter)
+			if(lastAction == Action.GRAB)
+				score += goldReward;
+			else
+				score -= goldReward;
 		if(lastAction == Action.SHOOT)
 			score -= 10;
 		else if(lastAction != Action.NO_OP) {
