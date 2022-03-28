@@ -44,7 +44,7 @@ class AgentFunction {
 	// Use these 2 variables to set the number of runs
 	// and whether the output of each run is printed out
 	static boolean debugMode = false;
-	static int trial = 10000;
+	static int trial = 1000;
 	//*********************************
 	
 	public AgentFunction()
@@ -86,8 +86,8 @@ class AgentFunction {
 		breeze = tp.getBreeze();
 		stench = tp.getStench();
 		scream = tp.getScream();
-//		if(glitter == true)
-//			return Action.GRAB;
+		if(glitter == true)
+			return Action.GRAB;
 		// update the state based on current percept
 		// and the most recent action
 		boolean[] percepts = {bump, glitter, breeze, stench, scream};

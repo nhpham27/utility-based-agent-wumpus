@@ -7,7 +7,7 @@ public class MCTS {
 	Node root;
 	int numIteration;
 	int NUM_ACTION = 6;
-	private double EXPLORATION_CONSTANT = 2;
+	private double EXPLORATION_CONSTANT = 20000;
 	private int simulationTime;
 	boolean treeDebug = false;
 	HashMap<Integer, String> actionNames;
