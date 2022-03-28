@@ -15,7 +15,7 @@ public class WorldState {
 				state[i][j].x = i;
 				state[i][j].y = j;
 				if(i == 0 || i == 5 || j == 0 || j == 5) {
-					//state[i][j].isWall = true;
+					state[i][j].isWall = true;
 				}
 			}
 		}
@@ -365,7 +365,7 @@ public class WorldState {
 		double deadPenalty = -1000;
 		double exploreScore = 0;
 		// count number of visited squares
-		double score = 1000;
+		double score = 0;
 		double count = 0;
 		double centerX = 0, centerY = 0;
 		for(int i = 1;i < this.worldStateSize - 1; i++) {
@@ -390,19 +390,40 @@ public class WorldState {
 		Square rightSquare = squares.get("right");
 		
 		if(agentLoc.isPit > 0 || agentLoc.isWumpus > 0)
-			score = -(agentLoc.isPit*deadPenalty + agentLoc.isWumpus*deadPenalty);
-//		if(agentLoc.numVisit == 1)
-//			score += goldReward/(count+1);
+			score = -(agentLoc.isPit*1000 + agentLoc.isWumpus*1000);
+		if(agentLoc.numVisit == 1)
+			score += 1;
 		
 		score -= agentLoc.numVisit;
-		if(agentLoc.hasGlitter)
-			if(lastAction == Action.GRAB)
-				score += goldReward;
-			else
-				score -= goldReward;
-		if(lastAction == Action.SHOOT)
-			score -= 10;
-		else if(lastAction != Action.NO_OP) {
+//		if(!frontSquare.isWall && frontSquare.isWumpus < 0.1 && frontSquare.isPit < 0.1)
+//			score += 1;
+//		
+//		if(lastAction == Action.NO_OP && frontSquare.isSafe) {
+//			score -= 1;
+//		}
+//		
+//		if(frontSquare.isWall || frontSquare.isWumpus > 0 || frontSquare.isPit > 0) {
+//			if(lastAction == Action.NO_OP) {
+//				score -= 1;
+//			}
+//		}
+//		if(lastAction == Action.GRAB) {
+//			if(agentLoc.hasGlitter) 
+//				score += goldReward;
+//			else
+//				score -= 1;
+//		}
+//		if(lastAction == Action.SHOOT) {
+//			if(this.alreadyShot == false && frontSquare.isWumpus > 0) {
+//				score += frontSquare.isWumpus*1000;
+//			}
+//			else if(this.alreadyShot == true) {
+//				score -= 100;
+//			}
+//			score -= 10;
+//		}
+		
+		if(lastAction != Action.NO_OP) {
 			score -= 1;
 		}
 		return score;

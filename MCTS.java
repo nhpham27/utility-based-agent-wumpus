@@ -7,7 +7,7 @@ public class MCTS {
 	Node root;
 	int numIteration;
 	int NUM_ACTION = 6;
-	private double EXPLORATION_CONSTANT = 20000;
+	private double EXPLORATION_CONSTANT = 2;
 	private int simulationTime;
 	boolean treeDebug = false;
 	HashMap<Integer, String> actionNames;
@@ -72,6 +72,15 @@ public class MCTS {
 				this.expansion(temp);
 				Node firstChild = temp.children[0];
 				this.backpropagation(firstChild, this.simulation(firstChild));
+//				double maxVal = -99999999;
+//				for(int j = 0; j < root.children.length; j++) {
+//					Node currChild = temp.children[j];
+//					// update max, find node to select
+//					if(currChild.value > maxVal) {
+//						maxVal = currChild.value;
+//					}
+//				}
+//				this.backpropagation(temp, maxVal);
 			}
 		}
 	}
@@ -113,9 +122,9 @@ public class MCTS {
 	private void expansion(Node node) {
 		if(this.treeDebug)
 			System.out.println("Expansion");
-		Integer[] temp = {Action.GO_FORWARD, Action.TURN_LEFT, 
+		Integer[] temp = {Action.GRAB, Action.GO_FORWARD, Action.TURN_LEFT, 
 				Action.TURN_RIGHT, Action.NO_OP, 
-				Action.GRAB, Action.SHOOT};
+				Action.SHOOT};
 		// shuffle the actions in the list so that
 		// the first action from the list will be 
 		// selected randomly
@@ -137,6 +146,7 @@ public class MCTS {
 			child.action = actions.get(i);
 			// add new node to children list
 			node.children[i] = child;
+			//child.value = this.simulation(child);
 		}
 	}
 	
