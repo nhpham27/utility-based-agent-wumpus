@@ -389,6 +389,7 @@ public class WorldState {
 		Square rightSquare = squares.get("right");
 		Square backSquare = squares.get("back");
 		
+		// penalize the agent for entering square that may contain pit or wumpus
 		if(agentLoc.isPit > 0 || agentLoc.isWumpus > 0)
 			score += -(agentLoc.isPit*1000 + agentLoc.isWumpus*1000);
 		

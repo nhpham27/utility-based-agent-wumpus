@@ -91,7 +91,7 @@ class AgentFunction {
 		if(debugMode == true)
 			this.state.printState();
 		// return action to be performed
-		MCTS mcts = new MCTS(this.state, 10);// world state, number of iterations, number of simulations
+		MCTS mcts = new MCTS(this.state, 10);// world state, number of iterations
 		mcts.buildSearchTree();
 
 		lastAction = mcts.getBestAction();
