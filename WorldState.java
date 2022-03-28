@@ -363,11 +363,10 @@ public class WorldState {
 		double goldReward = 1000;
 		// penalty for entering squares that have Wumpus or Pit
 		double deadPenalty = -1000;
-		double exploreScore = 0;
+
 		// count number of visited squares
 		double score = 1000;
 		double count = 0;
-		double centerX = 0, centerY = 0;
 		for(int i = 1;i < this.worldStateSize - 1; i++) {
 			for(int j = 1;j < this.worldStateSize - 1; j++) {
 				Square q = state[i][j];
@@ -388,9 +387,10 @@ public class WorldState {
 		Square frontSquare = squares.get("front");
 		Square leftSquare = squares.get("left");
 		Square rightSquare = squares.get("right");
+		Square backSquare = squares.get("back");
 		
 		if(agentLoc.isPit > 0 || agentLoc.isWumpus > 0)
-			score = -(agentLoc.isPit*1000 + agentLoc.isWumpus*1000);
+			score += -(agentLoc.isPit*1000 + agentLoc.isWumpus*1000);
 		
 		if(agentLoc.numVisit == 1)
 			score += 1;
@@ -400,32 +400,57 @@ public class WorldState {
 		if(!frontSquare.isWall && frontSquare.isWumpus < 0.1 && frontSquare.isPit < 0.1)
 			score += 1;
 		
+		
 		if(lastAction == Action.NO_OP && frontSquare.isSafe) {
 			score -= 1;
 		}
 		
+		// penalize the agent for doing nothing when there is obstable infront of it
 		if(frontSquare.isWall || frontSquare.isWumpus > 0 || frontSquare.isPit > 0) {
 			if(lastAction == Action.NO_OP) {
 				score -= 1;
 			}
 		}
-		if(lastAction == Action.GRAB) {
-			if(agentLoc.hasGlitter) 
-				score += goldReward;
-			else
-				score -= 1;
+		
+		// reward the agent for doing nothing when it is surrounded
+		if((frontSquare.isWall || frontSquare.isWumpus > 0 || frontSquare.isPit > 0)
+			&& (leftSquare.isWall || leftSquare.isWumpus > 0 || leftSquare.isPit > 0)
+			&& (rightSquare.isWall || rightSquare.isWumpus > 0 || rightSquare.isPit > 0)
+			&& (backSquare.isWall || backSquare.isWumpus > 0 || backSquare.isPit > 0)) {
+			if(lastAction == Action.NO_OP) {
+				score += 1;
+			}
 		}
 		
+		// penalize the agent for going into the wall
+		if(frontSquare.isWall && lastAction == Action.GO_FORWARD)
+			score -= 1;
+		
+		// reward the agent if it grabs when senses glitter
+		// penalize it otherwise
+		if(agentLoc.hasGlitter) {
+			if(lastAction == Action.GRAB) 
+				score += goldReward;
+			else
+				score -= goldReward;
+		}
+		else {
+			if(lastAction == Action.GRAB)
+				score -= goldReward;
+		}
+		
+		// reward the agent for shooting if there is wumpus in front
 		if(lastAction == Action.SHOOT) {
 			if(this.alreadyShot == false && frontSquare.isWumpus > 0) {
 				score += frontSquare.isWumpus*1000;
 			}
 			else if(this.alreadyShot == true) {
-				score -= 100;
+				score -= frontSquare.isWumpus*1000;
 			}
 			score -= 10;
 		}
 		
+		// all actions cost 1 point except NO_OP
 		if(lastAction != Action.NO_OP) {
 			score -= 1;
 		}

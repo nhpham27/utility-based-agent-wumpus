@@ -51,6 +51,7 @@ public class Square {
 		square.isSafe = this.isSafe;
 		square.hasStench = this.hasStench;
 		square.hasBreeze = this.hasBreeze;
+		square.hasGlitter = this.hasGlitter;
 		square.agentDirection =this.agentDirection;
 		square.x = this.x;
 		square.y = this.y;

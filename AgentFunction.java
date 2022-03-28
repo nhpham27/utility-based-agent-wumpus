@@ -38,13 +38,12 @@ class AgentFunction {
 	private WorldState state;
 	// 
 	private int lastAction = -1;
-	private int step;
 	
 	//*********************************
 	// Use these 2 variables to set the number of runs
 	// and whether the output of each run is printed out
 	static boolean debugMode = false;
-	static int trial = 1000;
+	static int trial = 10000;
 	//*********************************
 	
 	public AgentFunction()
@@ -70,7 +69,6 @@ class AgentFunction {
 		state = new WorldState();
 		if(debugMode == true)
 			state.printState();
-		this.step = 51;
 	}
 	
 	public int process(TransferPercept tp)
@@ -86,8 +84,6 @@ class AgentFunction {
 		breeze = tp.getBreeze();
 		stench = tp.getStench();
 		scream = tp.getScream();
-		if(glitter == true)
-			return Action.GRAB;
 		// update the state based on current percept
 		// and the most recent action
 		boolean[] percepts = {bump, glitter, breeze, stench, scream};
@@ -95,14 +91,9 @@ class AgentFunction {
 		if(debugMode == true)
 			this.state.printState();
 		// return action to be performed
-		//this.lastAction = actionTable[rand.nextInt(4)];
-		MCTS mcts = new MCTS(this.state, 100, this.step);// world state, unber of iterations, number of simulations
-		this.step--;
+		MCTS mcts = new MCTS(this.state, 10);// world state, number of iterations, number of simulations
 		mcts.buildSearchTree();
-		Square agentLoc = this.state.getAgentLocation();
-		if(agentLoc.hasGlitter && this.debugMode == true) {
-			System.out.println("has gold!!!");
-		}
+
 		lastAction = mcts.getBestAction();
 		return lastAction;
 	}

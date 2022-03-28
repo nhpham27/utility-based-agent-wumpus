@@ -8,14 +8,12 @@ public class MCTS {
 	int numIteration;
 	int NUM_ACTION = 6;
 	private double EXPLORATION_CONSTANT = 20000;
-	private int simulationTime;
 	boolean treeDebug = false;
 	HashMap<Integer, String> actionNames;
 	
-	MCTS(WorldState state, int numIteration, int simulTime){
+	MCTS(WorldState state, int numIteration){
 		this.root = new Node(state);
 		this.numIteration = numIteration;
-		this.simulationTime = simulTime;
 		
 		this.actionNames = new HashMap<>();
 		actionNames.put(Action.GO_FORWARD, "Forward");
@@ -72,15 +70,6 @@ public class MCTS {
 				this.expansion(temp);
 				Node firstChild = temp.children[0];
 				this.backpropagation(firstChild, this.simulation(firstChild));
-//				double maxVal = -99999999;
-//				for(int j = 0; j < root.children.length; j++) {
-//					Node currChild = temp.children[j];
-//					// update max, find node to select
-//					if(currChild.value > maxVal) {
-//						maxVal = currChild.value;
-//					}
-//				}
-//				this.backpropagation(temp, maxVal);
 			}
 		}
 	}
@@ -150,34 +139,13 @@ public class MCTS {
 		}
 	}
 	
-	// Simulate the node by doing all possible actions and pick
-	// the value of the best action as the value of the node
+	// Simulate the node by evaluating the value of the
+	// state that the agent is currently in
 	private double simulation(Node node) {
 		if(this.treeDebug)
 			System.out.println("Simulation");
-		Integer[] actions = {Action.GO_FORWARD, Action.TURN_LEFT, 
-							Action.TURN_RIGHT, Action.NO_OP, 
-							Action.GRAB, Action.SHOOT};
-		double totalValue = 0;
 
-		boolean agentDead = false;
-		double maxVal = -99999;
-		totalValue = node.state.evaluationFunction(node.action);
-
-		return totalValue;
-	}
-	
-	// evaluate the node to see if the state of the agent is dead
-	//, this is for setting the terminal node
-	private int evaluate(WorldState state, int action) {
-		Square agentLoc = state.getAgentLocation();
-		HashMap<String,Square> squares = state.getAroundSquares(agentLoc);
-
-		if(agentLoc.isWumpus > 0 || agentLoc.isPit > 0) {
-			return -1000;
-		}
-
-		return 0;
+		return node.state.evaluationFunction(node.action);
 	}
 	
 	// Doing back propagation to accumulate the value along
